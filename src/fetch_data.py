@@ -1,30 +1,20 @@
-import requests
-import pandas as pd
-import numpy as np
+import sys
 import os
 
-URL = "https://archive-api.open-meteo.com/v1/archive"
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-params = {
-    "latitude": 45.5017,
-    "longitude": -73.5673,
-    "start_date": "2024-01-01",
-    "end_date": "2024-12-31",
-    "hourly": "temperature_2m,wind_speed_10m",
-    "timezone": "America/Toronto",
-}
+from GetWeatherData import fetch_open_meteo_hourly, preprocess, MONTREAL
 
-response = requests.get(URL, params=params)
-response.raise_for_status()
-data = response.json()
+df_raw = fetch_open_meteo_hourly(
+    start_date="2024-01-01",
+    end_date="2024-12-31",
+    location=MONTREAL,
+)
 
-hourly = data["hourly"]
-df = pd.DataFrame({
-    "time": hourly["time"],
-    "temperature_2m": np.array(hourly["temperature_2m"], dtype=float),
-    "wind_speed_10m": np.array(hourly["wind_speed_10m"], dtype=float),
-})
+df = preprocess(df_raw)
 
-os.makedirs("data", exist_ok=True)
-df.to_csv("data/montreal_weather.csv", index=False)
-print(f"Saved {len(df)} rows to data/montreal_weather.csv")
+os.makedirs(os.path.join(os.path.dirname(__file__), "..", "data"), exist_ok=True)
+out_path = os.path.join(os.path.dirname(__file__), "..", "data", "montreal_weather.csv")
+df.to_csv(out_path)
+print(f"Saved {len(df)} rows to {os.path.normpath(out_path)}")
+print(f"Columns: {list(df.columns)}")
