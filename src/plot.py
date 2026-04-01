@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -14,7 +15,8 @@ from GetWeatherData import add_lags
 from src.model import fit_model, predict
 from src.validate import evaluate_all_horizons
 
-FIGURES_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 SEASON_MONTHS = {
     "summer": [6, 7, 8],
